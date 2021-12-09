@@ -56,12 +56,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (fakePFDID == 0)
   {
     std::cout << "ChoosePixelFormat() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
   if (SetPixelFormat(fakeDC, fakePFDID, &fakePfd) == false)
   {
     std::cout << "SetPixelFormat() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
@@ -70,28 +72,33 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (fakeRC == 0)
   {
     std::cout << "wglCreateContext() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
   if (wglMakeCurrent(fakeDC, fakeRC) == false)
   {
     std::cout << "wglMakeCurrent() failed." << std::endl;
+    std::cin.get();
+    return 1;
   }
 
   // load necessary functions for creating new GL context
   PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = nullptr;
-  wglChoosePixelFormatArb = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatArb"));
+  wglChoosePixelFormatArb = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
   if (wglChoosePixelFormatArb == nullptr)
   {
     std::cout << "wglGetProcAddress() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
   PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = nullptr;
-  wglCreateContextAttribsArb = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsArb"));
+  wglCreateContextAttribsArb = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
   if (wglCreateContextAttribsArb == nullptr)
   {
     std::cout << "wglGetProcAddress() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
@@ -101,14 +108,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
       L"OpenGL Window",
       WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT,
-      CW_USEDEFAULT, CW_USEDEFAULT,
+      700, 500,
       NULL, NULL,
       hInstance,
       NULL);
 
   HDC WndDC = GetDC(Window);
 
-  // TODO: Use modern openGL functions to create GL 3.3 context, and then render a triangle.
   const int pixelAttribs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
       WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -130,6 +136,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (status == false || numFormats == 0)
   {
     std::cout << "wglChoosePixelFormatArb() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
@@ -147,6 +154,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (RenderContext == NULL)
   {
     std::cout << "wglCreateContextAttribsArb() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
@@ -158,6 +166,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (!wglMakeCurrent(WndDC, RenderContext))
   {
     std::cout << "wglMakeCurrent() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
@@ -165,14 +174,23 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   if (glewInit() != GLEW_OK)
   {
     std::cout << "glewInit() failed." << std::endl;
+    std::cin.get();
     return 1;
   }
 
   ShowWindow(Window, nCmdShow);
 
-  glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-  SwapBuffers(WndDC);
+  //TODO: render a triangle
+
+  MSG msg = {};
+  while (GetMessage(&msg, NULL, 0, 0))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+    glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    SwapBuffers(WndDC);
+  }
 
   return 0;
 }
