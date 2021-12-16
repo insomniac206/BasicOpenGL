@@ -1,3 +1,0 @@
-[submodule "vendor/GLEW"]
-	path = vendor/GLEW
-	url = https://github.com/nigels-com/glew
