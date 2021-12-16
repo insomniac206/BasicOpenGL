@@ -2,6 +2,8 @@
 #define UNICODE
 #endif
 
+#define GLEW_STATIC
+
 #include <iostream>
 #include <windows.h>
 #include "GL/glew.h"
