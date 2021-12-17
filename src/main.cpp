@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "GL/glew.h"
 #include "GL/gl.h"
-#include "GL/wglext.h"  
+#include "GL/wglext.h"
 
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
