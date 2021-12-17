@@ -2,8 +2,6 @@
 #define UNICODE
 #endif
 
-#define GLEW_STATIC
-
 #include <iostream>
 #include <windows.h>
 #include "GL/glew.h"
@@ -183,6 +181,26 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   ShowWindow(Window, nCmdShow);
 
   //TODO: render a triangle
+  unsigned int vertexBuffer;
+  float vertexPositions[6] = {
+     0.0f, 0.5f,
+     0.5f, -0.5f,
+    -0.5f, -0.5f
+    };
+
+  unsigned int vertexArrayObject;
+  glGenVertexArrays(1, &vertexArrayObject);
+  glBindVertexArray(vertexArrayObject);
+
+  glGenBuffers(1, &vertexBuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), vertexPositions, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  
 
   MSG msg = {};
   while (GetMessage(&msg, NULL, 0, 0))
@@ -191,6 +209,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
     DispatchMessage(&msg);
     glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     SwapBuffers(WndDC);
   }
 
