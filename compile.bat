@@ -1,1 +1,1 @@
-g++ src/main.cpp -o bin/basicopengl -Iinclude -Llib -lopengl32 -luser32 -lgdi32 -lglew32
+g++ src/main.cpp -o bin/BasicOpenGL -Iinclude -Llib -lopengl32 -luser32 -lgdi32 -lglew32
