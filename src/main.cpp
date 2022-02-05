@@ -1,14 +1,39 @@
-#ifndef UNICODE
-#define UNICODE
-#endif
-
 #include <iostream>
+#include <string.h>
 #include <windows.h>
 #include "GL/glew.h"
 #include "GL/gl.h"
 #include "GL/wglext.h"
 
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+const char* vertexShaderSource = "#version 330 core\n"
+                             "layout (location = 0) in vec4 aPos;\n"
+                             "void main() {\n"
+                             "  gl_Position = aPos;\n"
+                             "}";
+
+const char* fragmentShaderSource = "#version 330 core\n"
+                             "layout (location = 0) out vec4 FragColor;\n"
+                             "void main() {\n"
+                             "  FragColor = vec4(0.7, 0.3, 0.3, 1.0);\n"
+                             "}";
+
+static void CheckShaderErrors(unsigned int shader)
+{
+  int success;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+  if (!success)
+  { 
+    int length;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+    char* infoLog = (char*)alloca(length * sizeof(char));
+    glGetShaderInfoLog(shader, length, &length, infoLog);
+    std::cout << "Shader Compilation Failed: " << infoLog << std::endl;
+    glDeleteShader(shader);
+  }
+}
 
 ATOM RegisterWindowClass(HINSTANCE hInstance)
 {
@@ -19,7 +44,7 @@ ATOM RegisterWindowClass(HINSTANCE hInstance)
   wcex.lpfnWndProc = WindowProcedure;
   wcex.hInstance = hInstance;
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wcex.lpszClassName = L"Basic";
+  wcex.lpszClassName = "Basic";
 
   return RegisterClassEx(&wcex);
 }
@@ -30,8 +55,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
 
   // legacy GL Context Initialization
   HWND fakeWindow = CreateWindow(
-      L"Basic",                          // Window class name
-      L"BasicOGL",                       // Window title
+      "Basic",                          // Window class name
+      "BasicOGL",                       // Window title
       WS_CLIPSIBLINGS | WS_CLIPCHILDREN, // Window style
       0, 0,                              // position (x, y)
       1, 1,                              // size (width, height)
@@ -102,10 +127,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
     return 1;
   }
 
-  // GL 3.3 Context Initialization
+  // GL Context Initialization
   HWND Window = CreateWindow(
-      L"Basic",
-      L"OpenGL Window",
+      "Basic",
+      "OpenGL Window",
       WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT,
       700, 500,
@@ -180,7 +205,39 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
 
   ShowWindow(Window, nCmdShow);
 
-  //TODO: render a triangle
+  unsigned int vertexShader;
+  vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+  glCompileShader(vertexShader);
+
+  CheckShaderErrors(vertexShader);
+
+  unsigned int fragmentShader;
+  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+  glCompileShader(fragmentShader);
+
+  CheckShaderErrors(fragmentShader);  
+
+  unsigned int shaderProgram;
+  shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+  glValidateProgram(shaderProgram);
+
+  int success;
+  char infoLog[512];
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success)
+  {
+    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    std::cout << "GLSL Program Linking failed: " << infoLog << std::endl;
+  }
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+  
   unsigned int vertexBuffer;
   float vertexPositions[6] = {
      0.0f, 0.5f,
@@ -198,9 +255,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
-
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   
+  glUseProgram(shaderProgram);
 
   MSG msg = {};
   while (GetMessage(&msg, NULL, 0, 0))
