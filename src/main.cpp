@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string.h>
 #include <windows.h>
 #include "GL/glew.h"
 #include "GL/gl.h"
@@ -44,7 +43,7 @@ ATOM RegisterWindowClass(HINSTANCE hInstance)
   wcex.lpfnWndProc = WindowProcedure;
   wcex.hInstance = hInstance;
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wcex.lpszClassName = "Basic";
+  wcex.lpszClassName = L"Basic";
 
   return RegisterClassEx(&wcex);
 }
@@ -55,8 +54,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
 
   // legacy GL Context Initialization
   HWND fakeWindow = CreateWindow(
-      "Basic",                          // Window class name
-      "BasicOGL",                       // Window title
+      L"Basic",                          // Window class name
+      L"BasicOGL",                       // Window title
       WS_CLIPSIBLINGS | WS_CLIPCHILDREN, // Window style
       0, 0,                              // position (x, y)
       1, 1,                              // size (width, height)
@@ -129,8 +128,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
 
   // GL Context Initialization
   HWND Window = CreateWindow(
-      "Basic",
-      "OpenGL Window",
+      L"Basic",
+      L"OpenGL Window",
       WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT,
       700, 500,
