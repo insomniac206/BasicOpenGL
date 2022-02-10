@@ -22,4 +22,4 @@ HWND CreateWindow(const wchar_t ClassName, const wchar_t WindowTitle, int WinPos
 HGLRC CreateGLContext(HDC DeviceContext);
 
 template<typename glFuncPTR>
-glFuncPTR load_function(glFuncName);
+glFuncPTR load_function(const wchar_t glFuncName);

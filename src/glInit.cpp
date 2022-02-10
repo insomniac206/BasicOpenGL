@@ -55,7 +55,7 @@ HGLRC CreateGLContext(HDC DeviceContext)
 
 
 template<typename glFuncPTR>
-glFuncPTR load_function(glFuncName)
+glFuncPTR load_function(const wchar_t glFuncName)
 {
   glFuncPTR GLFunc = nullptr;
   GLFunc = reinterpret_cast<glFuncPTR>(wglGetProcAddress(glFuncName));
