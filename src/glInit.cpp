@@ -1,7 +1,7 @@
 #include "glInit.h"
 
 
-WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT CALLBACK(HWND, UINT, WPARAM, LPARAM)> WindowProcedure)
+WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WindowProcedure)
 {
   WNDCLASSEX WindowClass;
   memset(&WindowClass, 0, sizeof(WindowClass));
@@ -101,7 +101,7 @@ void SetPFDLegacy(HDC DeviceContext)
 
 void SetPFD(HDC DeviceContext)
 {
-  wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
+  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
 
   const int pixelAttribs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -156,7 +156,7 @@ void CreateGlContextLegacy(HDC DeviceContext)
 
 void CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor)
 {
-  wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
+  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
 
   int contextAttribs[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, GLVersionNumberMajor,
