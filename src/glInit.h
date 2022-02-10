@@ -15,7 +15,7 @@ void CreateGlContextLegacy(HDC DeviceContext);
 
 void CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor);
 
-WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT CALLBACK(HWND, UINT, WPARAM, LPARAM)> WindowProcedure);
+WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WindowProcedure);
 
 HWND CreateWindow(const wchar_t ClassName, const wchar_t WindowTitle, int WinPosX, int WinPosY, int wWidth, int wHeight, HINSTANCE hInstance);
 
