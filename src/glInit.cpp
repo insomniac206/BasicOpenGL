@@ -1,7 +1,7 @@
 #include "glInit.h"
 
 
-WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WindowProcedure)
+WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const char* ClassName, WNDPROC WindowProcedure)
 {
   WNDCLASSEX WindowClass;
   memset(&WindowClass, 0, sizeof(WindowClass));
@@ -16,7 +16,7 @@ WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, funct
 }
 
 
-HWND CreateWindow(const wchar_t ClassName, const wchar_t WindowTitle, int WinPosX, int WinPosY, int wWidth, int wHeight, HINSTNACE hInstance)
+HWND BGLCreateWindow(const char* ClassName, const char* WindowTitle, int WinPosX, int WinPosY, int wWidth, int wHeight, HINSTANCE hInstance)
 {
   HWND Window = CreateWindow(
     ClassName,
@@ -34,36 +34,16 @@ HWND CreateWindow(const wchar_t ClassName, const wchar_t WindowTitle, int WinPos
 }
 
 
-HGLRC CreateGLContext(HDC DeviceContext)
-{
-  HGLRC RenderContext = wglCreateContext(DeviceContext);
-
-  if (RenderContext == 0)
-  {
-    std::cout << "wglCreateContext() failed." << std::endl;
-    std::cin.get();
-    return 1;
-  }
-
-  if (wglMakeCurrent(DeviceContext, RenderContext) == false)
-  {
-    std::cout << "wglMakeCurrent() failed." << std::endl;
-    std::cin.get();
-    return 1;
-  }
-}
-
-
 template<typename glFuncPTR>
-glFuncPTR load_function(const wchar_t glFuncName)
+glFuncPTR load_function(const char* glFuncName)
 {
   glFuncPTR GLFunc = nullptr;
   GLFunc = reinterpret_cast<glFuncPTR>(wglGetProcAddress(glFuncName));
-  if (wglChoosePixelFormatArb == nullptr)
+  if (GLFunc == nullptr)
   {
     std::cout << "wglGetProcAddress() failed." << std::endl;
     std::cin.get();
-    return 1;
+    return nullptr;
   }
 
   return GLFunc;
@@ -87,21 +67,26 @@ void SetPFDLegacy(HDC DeviceContext)
   {
     std::cout << "ChoosePixelFormat() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
 
   if (SetPixelFormat(DeviceContext, PFDID, &Pfd) == false)
   {
     std::cout << "SetPixelFormat() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
 }
 
 
 void SetPFD(HDC DeviceContext)
 {
-  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
+  // PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
+  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = nullptr;
+  wglChoosePixelFormatArb = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
+  if (wglChoosePixelFormatArb == nullptr)
+  {
+    std::cout << "wglGetProcAddress() failed." << std::endl;
+    std::cin.get();
+  }
 
   const int pixelAttribs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -125,7 +110,6 @@ void SetPFD(HDC DeviceContext)
   {
     std::cout << "wglChoosePixelFormatArb() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
 
   PIXELFORMATDESCRIPTOR PFD;
@@ -134,7 +118,7 @@ void SetPFD(HDC DeviceContext)
 }
 
 
-void CreateGlContextLegacy(HDC DeviceContext)
+HGLRC CreateGlContextLegacy(HDC DeviceContext)
 {
   HGLRC RenderContext = wglCreateContext(DeviceContext);
 
@@ -142,21 +126,28 @@ void CreateGlContextLegacy(HDC DeviceContext)
   {
     std::cout << "wglCreateContext() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
 
   if (wglMakeCurrent(DeviceContext, RenderContext) == false)
   {
     std::cout << "wglMakeCurrent() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
+
+  return RenderContext;
 }
 
 
-void CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor)
+HGLRC CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor)
 {
-  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
+  // PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
+  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = nullptr;
+  wglCreateContextAttribsArb = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+  if (wglCreateContextAttribsArb == nullptr)
+  {
+    std::cout << "wglGetProcAddress() failed." << std::endl;
+    std::cin.get();
+  }
 
   int contextAttribs[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, GLVersionNumberMajor,
@@ -169,13 +160,13 @@ void CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionN
   {
     std::cout << "wglCreateContextAttribsArb() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
 
   if (!wglMakeCurrent(DeviceContext, RenderContext))
   {
     std::cout << "wglMakeCurrent() failed." << std::endl;
     std::cin.get();
-    return 1;
   }
+
+  return RenderContext;
 }

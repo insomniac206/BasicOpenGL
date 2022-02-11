@@ -11,15 +11,15 @@ void SetPFDLegacy(HDC DeviceContext);
 // sets the attributes of PIXELFORMATDESCRIPTOR struct, and sets pixel format, for modern opengl context
 void SetPFD(HDC DeviceContext);
 
-void CreateGlContextLegacy(HDC DeviceContext);
+HGLRC CreateGlContextLegacy(HDC DeviceContext);
 
-void CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor);
+HGLRC CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor);
 
-WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const wchar_t ClassName, function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WindowProcedure);
+WNDCLASSEX CreateWindowClass(HINSTANCE hInstance, const char* ClassName, WNDPROC WindowProcedure);
 
-HWND CreateWindow(const wchar_t ClassName, const wchar_t WindowTitle, int WinPosX, int WinPosY, int wWidth, int wHeight, HINSTANCE hInstance);
+HWND BGLCreateWindow(const char* ClassName, const char* WindowTitle, int WinPosX, int WinPosY, int wWidth, int wHeight, HINSTANCE hInstance);
 
 HGLRC CreateGLContext(HDC DeviceContext);
 
 template<typename glFuncPTR>
-glFuncPTR load_function(const wchar_t glFuncName);
+glFuncPTR load_function(const char* glFuncName);
