@@ -1,3 +1,7 @@
+#ifndef UNICODE
+  #define UNICODE
+#endif
+
 #include "glInit.h"
 
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParamm);
@@ -42,18 +46,21 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine
   SetPFDLegacy(fakeDC);
   HGLRC fakeRenderContext = CreateGlContextLegacy(fakeDC);
 
+  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
+  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
+
   HWND Window = BGLCreateWindow("Basic", "OpenGL Window", CW_USEDEFAULT, CW_USEDEFAULT, 700, 500, hInstance);
 
   HDC DeviceContext = GetDC(Window);
-
-  SetPFD(DeviceContext);
 
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(fakeRenderContext);
   ReleaseDC(fakeWindow, fakeDC);
   DestroyWindow(fakeWindow);
 
-  HGLRC RenderContext = CreateGlContext(DeviceContext, 3, 3);
+  SetPFD(DeviceContext, wglChoosePixelFormatArb);
+
+  HGLRC RenderContext = CreateGlContext(DeviceContext, 3, 3, wglCreateContextAttribsArb);
 
   if (glewInit() != GLEW_OK)
   {
