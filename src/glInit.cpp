@@ -21,8 +21,8 @@ HWND BGLCreateWindow(const char* ClassName, const char* WindowTitle, int WinPosX
   HWND Window = CreateWindow(
     ClassName,
     WindowTitle,
-    WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-    WinPosX, WinPosY,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT,
     wWidth, wHeight,
     NULL,
     NULL,
@@ -32,23 +32,6 @@ HWND BGLCreateWindow(const char* ClassName, const char* WindowTitle, int WinPosX
 
   return Window;
 }
-
-
-template<typename glFuncPTR>
-glFuncPTR load_function(const char* glFuncName)
-{
-  glFuncPTR GLFunc = nullptr;
-  GLFunc = reinterpret_cast<glFuncPTR>(wglGetProcAddress(glFuncName));
-  if (GLFunc == nullptr)
-  {
-    std::cout << "wglGetProcAddress() failed." << std::endl;
-    std::cin.get();
-    return nullptr;
-  }
-
-  return GLFunc;
-}
-
 
 void SetPFDLegacy(HDC DeviceContext)
 {
@@ -77,17 +60,8 @@ void SetPFDLegacy(HDC DeviceContext)
 }
 
 
-void SetPFD(HDC DeviceContext)
+void SetPFD(HDC DeviceContext, PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb)
 {
-  // PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = load_function<PFNWGLCHOOSEPIXELFORMATARBPROC>("wglChoosePixelFormatARB");
-  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatArb = nullptr;
-  wglChoosePixelFormatArb = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
-  if (wglChoosePixelFormatArb == nullptr)
-  {
-    std::cout << "wglGetProcAddress() failed." << std::endl;
-    std::cin.get();
-  }
-
   const int pixelAttribs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
       WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -138,17 +112,8 @@ HGLRC CreateGlContextLegacy(HDC DeviceContext)
 }
 
 
-HGLRC CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor)
+HGLRC CreateGlContext(HDC DeviceContext, int GLVersionNumberMajor, int GLVersionNumberMinor, PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb)
 {
-  // PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = load_function<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
-  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsArb = nullptr;
-  wglCreateContextAttribsArb = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
-  if (wglCreateContextAttribsArb == nullptr)
-  {
-    std::cout << "wglGetProcAddress() failed." << std::endl;
-    std::cin.get();
-  }
-
   int contextAttribs[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, GLVersionNumberMajor,
       WGL_CONTEXT_MINOR_VERSION_ARB, GLVersionNumberMinor,
